@@ -134,7 +134,7 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
     //     },
     //   },
     // ],
-    fallback: false, //Esto nos indica si podemos desde el navegador colocar cualquier path que quisieramos, es decir por más que no este definido en paths, lo mismo podriamos acceder; si el valor es false entonces al intentar ingresar en un path no definido nos tiraría un 404. (Por defecto: 'blocking')
+    fallback: "blocking", //Esto nos indica si podemos desde el navegador colocar cualquier path que quisieramos, es decir por más que no este definido en paths, lo mismo podriamos acceder; si el valor es false entonces al intentar ingresar en un path no definido nos tiraría un 404. (Por defecto: 'blocking')
   };
 };
 
@@ -143,10 +143,23 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   const { id } = params as { id: string }; //Hacemos el tipado de esta forma para que sea menos compleja
 
+  const pokemon = await getPokemonInfo(id); //El catch no se maneja porque si falla solo fallará en build-time, excepto si el fallback se encuentra  en "blocking".
+
+  //En caso de que no exita el pokemon buscado en la url, nos redirije.
+  if (!pokemon) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false, //Indica que en un futuro esto puede llegar a cambiar (le indicamos a los bots de google.)
+      },
+    };
+  }
+
   return {
     props: {
-      pokemon: await getPokemonInfo(id), //El catch no se maneja porque si falla solo fallará en build-time
+      pokemon,
     },
+    revalidate: 86400, //60* 60* 24  - INCREMENTAL STATIC REGENERATION (Esa sería la multip que se debería realizar para la revalidación de la pagina en segundos. Es conveniente establecer el numero en segundos directamente. Este número indicaría que la pagina se revalidaría cada 24 hs)
   };
 };
 
