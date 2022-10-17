@@ -33,7 +33,7 @@ export const Layout: React.FC<PropsWithChildren<Props>> = ({
           property="og:description"
           content={`Esta es la página sobre ${title}`}
         />
-        <meta property="og:image" content={`${origin}/img/banner.png`} />
+        <meta property="og:image" content={`${origin}/images/banner.png`} />
       </Head>
       <Navbar />
 
